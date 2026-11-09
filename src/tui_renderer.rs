@@ -47,15 +47,10 @@ fn render_summary_header(frame: &mut Frame<'_>, area: Rect, snap: &TelemetrySnap
     } else {
         "OFF"
     };
-    let gpu_mid = format!(
-        "Power: {:5.1} W / {:5.1} W",
-        snap.gpu_power_w, snap.gpu_power_limit_w
-    );
-    let cpu_mid = "Safety Ceiling: 85.0 C";
     let lines = vec![
         Line::from(vec![Span::styled(
             format!(
-                " MODE: {:<6} | PRIMARY SENSOR: {:<3} | TARGET TEMP: {:5.1} C ",
+                " MODE: {:<6} | PRIMARY SENSOR: {:<3} | TARGET TEMP: {:5.1} C | SAFETY CEILING: 85.0 C ",
                 snap.mode.label(),
                 snap.active_sensor.label(),
                 snap.target_temp_c,
@@ -65,12 +60,12 @@ fn render_summary_header(frame: &mut Frame<'_>, area: Rect, snap: &TelemetrySnap
                 .add_modifier(Modifier::BOLD),
         )]),
         Line::from(format!(
-            " GPU -> Instant: {:5.1} C | EMA: {:5.2} C | {:<24} | Heater: {}",
-            snap.instant_gpu_temp_c, snap.ema_gpu_temp_c, gpu_mid, gpu_status
+            " GPU -> Instant: {:5.1} C | EMA: {:5.2} C | Heater: {}",
+            snap.instant_gpu_temp_c, snap.ema_gpu_temp_c, gpu_status
         )),
         Line::from(format!(
-            " CPU -> Instant: {:5.1} C | EMA: {:5.2} C | {:<24} | Heater: {}",
-            snap.instant_cpu_temp_c, snap.ema_cpu_temp_c, cpu_mid, cpu_status
+            " CPU -> Instant: {:5.1} C | EMA: {:5.2} C | Heater: {}",
+            snap.instant_cpu_temp_c, snap.ema_cpu_temp_c, cpu_status
         )),
     ];
     let block = Block::default()
@@ -99,7 +94,7 @@ fn render_gauges_row(frame: &mut Frame<'_>, area: Rect, snap: &TelemetrySnapshot
         cols[0],
         " EMA Temp vs Ceiling (85C) ",
         temp_ratio,
-        format!("{primary_ema:.1} C / {:.1} C Target", snap.target_temp_c),
+        format!("{primary_ema:.1} C / 85.0 C"),
         Color::Green,
     );
     render_single_gauge(
