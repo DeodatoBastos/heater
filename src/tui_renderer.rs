@@ -74,7 +74,7 @@ fn render_summary_header(frame: &mut Frame<'_>, area: Rect, snap: &TelemetrySnap
         )),
     ];
     let block = Block::default()
-        .title(" PC THERMAL REGULATOR (RUST + RATATUI) ")
+        .title(" PC THERMAL REGULATOR ")
         .borders(Borders::ALL);
     frame.render_widget(Paragraph::new(lines).block(block), area);
 }
