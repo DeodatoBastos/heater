@@ -1,10 +1,10 @@
 """Orchestrates sensors, EMA filters, PID regulator, and load actuators."""
 
-from heater.ema_tracker import EmaFilter, RollingMetricBuffer
-from heater.load_workers import ThermalLoadActuator
-from heater.models import ControlMode, SensorSource, TelemetrySnapshot, ThermalReading
-from heater.pid_regulator import PidThermalRegulator, clamp_duty_cycle
-from heater.thermal_sensors import ThermalSensorProbe
+from ema_tracker import EmaFilter, RollingMetricBuffer
+from load_workers import ThermalLoadActuator
+from models import ControlMode, SensorSource, TelemetrySnapshot, ThermalReading
+from pid_regulator import PidThermalRegulator, clamp_duty_cycle
+from thermal_sensors import ThermalSensorProbe
 
 
 class ThermalOrchestrator:

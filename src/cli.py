@@ -4,16 +4,16 @@ import argparse
 import curses
 import sys
 
-from heater.load_workers import MultiprocessLoadActuator
-from heater.models import PidCoefficients
-from heater.orchestrator import ThermalOrchestrator
-from heater.pid_regulator import PidThermalRegulator
-from heater.thermal_sensors import (
+from load_workers import MultiprocessLoadActuator
+from models import PidCoefficients
+from orchestrator import ThermalOrchestrator
+from pid_regulator import PidThermalRegulator
+from thermal_sensors import (
     LinuxNvmlThermalProbe,
     NvmlLibraryWrapper,
     discover_cpu_temp_sysfs_path,
 )
-from heater.tui_renderer import CursesThermalTui
+from tui_renderer import CursesThermalTui
 
 
 def parse_cli_arguments(argv: list[str]) -> argparse.Namespace:

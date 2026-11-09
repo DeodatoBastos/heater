@@ -1,6 +1,6 @@
 """Closed-loop PID thermal regulator with anti-windup and safety cutoff."""
 
-from heater.models import PidCoefficients
+from models import PidCoefficients
 
 
 def clamp_duty_cycle(raw_duty: float) -> float:

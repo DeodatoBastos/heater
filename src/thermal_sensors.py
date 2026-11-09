@@ -5,7 +5,7 @@ import glob
 import time
 from typing import Protocol
 
-from heater.models import ThermalReading
+from models import ThermalReading
 
 
 class ThermalSensorProbe(Protocol):

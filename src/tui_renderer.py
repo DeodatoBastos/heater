@@ -3,8 +3,8 @@
 import curses
 import time
 
-from heater.models import TelemetrySnapshot
-from heater.orchestrator import ThermalOrchestrator
+from models import TelemetrySnapshot
+from orchestrator import ThermalOrchestrator
 
 
 def format_progress_bar(fraction: float, width: int) -> str:
