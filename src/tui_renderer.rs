@@ -131,11 +131,24 @@ fn render_single_gauge(
     label: String,
     color: Color,
 ) {
+    let text_span = Span::styled(
+        format!(" {label} "),
+        Style::default()
+            .fg(Color::White)
+            .bg(Color::Rgb(24, 26, 36))
+            .add_modifier(Modifier::BOLD),
+    );
     let gauge = Gauge::default()
         .block(Block::default().title(title).borders(Borders::ALL))
-        .gauge_style(Style::default().fg(color))
+        .gauge_style(
+            Style::default()
+                .fg(color)
+                .bg(Color::Rgb(35, 38, 52))
+                .add_modifier(Modifier::BOLD),
+        )
+        .use_unicode(true)
         .ratio(ratio)
-        .label(label);
+        .label(text_span);
     frame.render_widget(gauge, area);
 }
 
