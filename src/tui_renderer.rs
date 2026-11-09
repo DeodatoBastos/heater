@@ -5,7 +5,7 @@ use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::symbols::Marker;
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{Axis, Block, Borders, Chart, Dataset, Gauge, GraphType, Paragraph};
+use ratatui::widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Paragraph};
 
 use crate::load_workers::ThermalLoadActuator;
 use crate::models::{SensorSource, TelemetrySnapshot};
@@ -47,30 +47,30 @@ fn render_summary_header(frame: &mut Frame<'_>, area: Rect, snap: &TelemetrySnap
     } else {
         "OFF"
     };
+    let gpu_mid = format!(
+        "Power: {:5.1} W / {:5.1} W",
+        snap.gpu_power_w, snap.gpu_power_limit_w
+    );
+    let cpu_mid = "Safety Ceiling: 85.0 C";
     let lines = vec![
         Line::from(vec![Span::styled(
             format!(
-                " MODE: {:<6} | PRIMARY SENSOR: {:<3} | TARGET TEMP: {:5.1} C | DUTY: {:5.1}% ",
+                " MODE: {:<6} | PRIMARY SENSOR: {:<3} | TARGET TEMP: {:5.1} C ",
                 snap.mode.label(),
                 snap.active_sensor.label(),
                 snap.target_temp_c,
-                snap.duty_cycle * 100.0
             ),
             Style::default()
                 .fg(Color::Cyan)
                 .add_modifier(Modifier::BOLD),
         )]),
         Line::from(format!(
-            " GPU -> Instant: {:5.1} C | EMA: {:5.2} C | Power: {:5.1} W / {:5.1} W | Heater: {}",
-            snap.instant_gpu_temp_c,
-            snap.ema_gpu_temp_c,
-            snap.gpu_power_w,
-            snap.gpu_power_limit_w,
-            gpu_status
+            " GPU -> Instant: {:5.1} C | EMA: {:5.2} C | {:<24} | Heater: {}",
+            snap.instant_gpu_temp_c, snap.ema_gpu_temp_c, gpu_mid, gpu_status
         )),
         Line::from(format!(
-            " CPU -> Instant: {:5.1} C | EMA: {:5.2} C | Safety Ceiling: 85.0 C  | Heater: {}",
-            snap.instant_cpu_temp_c, snap.ema_cpu_temp_c, cpu_status
+            " CPU -> Instant: {:5.1} C | EMA: {:5.2} C | {:<24} | Heater: {}",
+            snap.instant_cpu_temp_c, snap.ema_cpu_temp_c, cpu_mid, cpu_status
         )),
     ];
     let block = Block::default()
@@ -131,25 +131,34 @@ fn render_single_gauge(
     label: String,
     color: Color,
 ) {
-    let text_span = Span::styled(
-        format!(" {label} "),
-        Style::default()
-            .fg(Color::White)
-            .bg(Color::Rgb(24, 26, 36))
-            .add_modifier(Modifier::BOLD),
-    );
-    let gauge = Gauge::default()
-        .block(Block::default().title(title).borders(Borders::ALL))
-        .gauge_style(
+    let block = Block::default().title(title).borders(Borders::ALL);
+    let inner = block.inner(area);
+    frame.render_widget(block, area);
+    if inner.width == 0 || inner.height == 0 {
+        return;
+    }
+    let filled_cols = ((inner.width as f64) * ratio.clamp(0.0, 1.0)).round() as u16;
+    let label_start = inner.width.saturating_sub(label.len() as u16) / 2;
+    let mut spans = Vec::with_capacity(inner.width as usize);
+    for col in 0..inner.width {
+        let ch = label
+            .chars()
+            .nth(col.saturating_sub(label_start) as usize)
+            .filter(|_| col >= label_start && col < label_start + (label.len() as u16))
+            .unwrap_or(' ');
+        let style = if col < filled_cols {
             Style::default()
-                .fg(color)
-                .bg(Color::Rgb(35, 38, 52))
-                .add_modifier(Modifier::BOLD),
-        )
-        .use_unicode(true)
-        .ratio(ratio)
-        .label(text_span);
-    frame.render_widget(gauge, area);
+                .fg(Color::Black)
+                .bg(color)
+                .add_modifier(Modifier::BOLD)
+        } else {
+            Style::default()
+                .fg(Color::White)
+                .add_modifier(Modifier::BOLD)
+        };
+        spans.push(Span::styled(ch.to_string(), style));
+    }
+    frame.render_widget(Paragraph::new(Line::from(spans)), inner);
 }
 
 fn render_temperature_chart<P: ThermalSensorProbe, A: ThermalLoadActuator>(
@@ -183,10 +192,9 @@ fn render_temperature_chart<P: ThermalSensorProbe, A: ThermalLoadActuator>(
             .data(&ema_pts),
     ];
     let title = format!(
-        " Temperature History ({}) | Min: {min_t:.1}C  Max: {max_t:.1}C  EMA: {:.2}C  Target: {:.1}C ",
+        " Temperature History ({}) | Min: {min_t:.1}C  Max: {max_t:.1}C  EMA: {:.2}C ",
         snap.active_sensor.label(),
         orch.ema_history.summary_stats().2,
-        snap.target_temp_c
     );
     let max_x = orch.instant_history.capacity() as f64;
     let chart = Chart::new(datasets)
@@ -197,12 +205,11 @@ fn render_temperature_chart<P: ThermalSensorProbe, A: ThermalLoadActuator>(
                 .bounds([0.0, max_x])
                 .labels(vec![Span::raw("-30s"), Span::raw("-15s"), Span::raw("Now")]),
         )
-        .y_axis(
-            Axis::default()
-                .title("Celsius")
-                .bounds([25.0, 90.0])
-                .labels(vec![Span::raw("25C"), Span::raw("55C"), Span::raw("85C")]),
-        );
+        .y_axis(Axis::default().bounds([25.0, 90.0]).labels(vec![
+            Span::raw("25C"),
+            Span::raw("55C"),
+            Span::raw("85C"),
+        ]));
     frame.render_widget(chart, area);
 }
 
