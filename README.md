@@ -14,8 +14,19 @@ A native Rust terminal user interface (TUI) for regulating PC temperature as a d
 
 ## Installation
 
-Run the installation script to automatically install the Rust toolchain (if missing), fetch and compile all Rust crate dependencies, and install the `heater` binary into `~/.local/bin`:
+Install directly with `curl` or `wget` (automatically installs Rust via `rustup` if missing, downloads the repository, compiles all crate dependencies, and installs `heater` into `~/.local/bin`):
 
+**Using `curl`:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/DeodatoBastos/heater/main/install.sh | bash
+```
+
+**Using `wget`:**
+```bash
+wget -qO- https://raw.githubusercontent.com/DeodatoBastos/heater/main/install.sh | bash
+```
+
+**Or from a local clone:**
 ```bash
 ./install.sh
 ```
