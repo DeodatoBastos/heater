@@ -12,7 +12,21 @@ A native Rust terminal user interface (TUI) for regulating PC temperature as a d
   - Uses `std::thread` with lock-free `AtomicU64` duty cycles (no Python GIL or heavy subprocess overhead).
   - Directly loads `libcuda.so.1` and `libnvidia-ml.so.1` via `libloading`.
 
-## Running the TUI
+## Installation
+
+Run the installation script to automatically install the Rust toolchain (if missing), fetch and compile all Rust crate dependencies, and install the `heater` binary into `~/.local/bin`:
+
+```bash
+./install.sh
+```
+
+Then run `heater` from anywhere:
+
+```bash
+heater --target 65.0
+```
+
+## Running from Source
 
 ```bash
 cargo run --release -- --target 65.0
